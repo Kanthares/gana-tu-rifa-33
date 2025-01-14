@@ -2,6 +2,17 @@ import { motion } from 'framer-motion';
 import Timer from '../components/Timer';
 import Prize from '../components/Prize';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from "@/components/ui/navigation-menu";
 
 const Index = () => {
   const endDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
@@ -9,6 +20,32 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
+      {/* Navigation Menu */}
+      <div className="border-b border-white/10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <img src="/placeholder.svg" alt="Logo" className="h-10 w-10" />
+              <h1 className="text-xl font-bold">Sorteos Premium</h1>
+            </div>
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Button 
+                    variant="ghost" 
+                    className="flex items-center gap-2"
+                    onClick={() => navigate('/')}
+                  >
+                    <Home className="h-4 w-4" />
+                    Inicio
+                  </Button>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto px-4 py-16 md:py-24">
         {/* Hero Section */}
         <div className="text-center mb-16 animate-fade-up">
