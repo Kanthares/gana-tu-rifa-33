@@ -19,8 +19,8 @@ type FormData = {
   phone: string;
 };
 
-const TICKET_PRICE_BS = 100; // Example price in Bolivares
-const TICKET_PRICE_USD = 3; // Example price in USD
+const TICKET_PRICE_BS = 65; // Example price in Bolivares
+const TICKET_PRICE_USD = 1; // Example price in USD
 
 const TicketForm = () => {
   const [ticketCount, setTicketCount] = useState(1);
