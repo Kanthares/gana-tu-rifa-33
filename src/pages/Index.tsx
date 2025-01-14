@@ -17,7 +17,7 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            Limited Time Offer
+            Eventos por tiempo limitado
           </motion.span>
           <motion.h1 
             className="text-4xl md:text-6xl font-bold mb-6 tracking-tight"
@@ -25,7 +25,7 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Win Amazing Prizes
+            ¡No Te Quedes Fuera! Tu Oportunidad de Ganar Está Aquí
           </motion.h1>
           <motion.p 
             className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto"
@@ -33,7 +33,7 @@ const Index = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            Join our exclusive raffle for a chance to win incredible rewards. Don't miss out on this opportunity.
+            ¿Que esperas? Participa para ganar antes que se acabe el tiempo
           </motion.p>
         </div>
 
