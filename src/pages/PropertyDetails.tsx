@@ -14,10 +14,10 @@ const PropertyDetails = () => {
   ];
 
   const propertyFeatures = [
-    { icon: <Bed className="h-6 w-6" />, label: "4 Bedrooms" },
-    { icon: <Bath className="h-6 w-6" />, label: "3 Bathrooms" },
-    { icon: <Car className="h-6 w-6" />, label: "2 Parking Spots" },
-    { icon: <House className="h-6 w-6" />, label: "2,500 sq ft" }
+    { icon: <Bed className="h-6 w-6" />, label: "4 Habitaciones" },
+    { icon: <Bath className="h-6 w-6" />, label: "3 Baños" },
+    { icon: <Car className="h-6 w-6" />, label: "2 Puestos de Autos" },
+    { icon: <House className="h-6 w-6" />, label: "2,500 Mt2" }
   ];
 
   return (
@@ -52,9 +52,9 @@ const PropertyDetails = () => {
           {/* Right Column - Property Details */}
           <div className="space-y-8">
             <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6">
-              <h1 className="text-3xl font-bold mb-4">Luxury Villa</h1>
+              <h1 className="text-3xl font-bold mb-4">Nombre de la propiedad</h1>
               <p className="text-gray-300 mb-6">
-                Located in the heart of the city, this stunning property offers modern luxury living with breathtaking views.
+                Localizada en Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
               </p>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
@@ -70,7 +70,7 @@ const PropertyDetails = () => {
                 className="w-full text-lg py-6"
                 onClick={() => console.log("Buy tickets clicked")}
               >
-                Buy Tickets
+                Comprar Tickets
               </Button>
             </div>
           </div>
