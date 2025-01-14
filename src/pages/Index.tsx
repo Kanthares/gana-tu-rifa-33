@@ -25,7 +25,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <img src="./files/logo.png" alt="Logo" className="h-10 w-10" />
+              <img src="Kanthares/raffle-timer-hub-12/src/files/logo.png" alt="Logo" className="h-10 w-10" />
               <h1 className="text-xl font-bold">Gana Tu Rifa</h1>
             </div>
             <NavigationMenu>
