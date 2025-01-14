@@ -44,21 +44,11 @@ const Index = () => {
 
         {/* Prizes Section */}
         <div className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Featured Prizes</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">Eventos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Prize 
               title="Grand Prize"
               description="An incredible package worth over $1,000"
-              imageUrl="/placeholder.svg"
-            />
-            <Prize 
-              title="Second Prize"
-              description="Amazing tech gadgets and accessories"
-              imageUrl="/placeholder.svg"
-            />
-            <Prize 
-              title="Third Prize"
-              description="Exclusive merchandise and collectibles"
               imageUrl="/placeholder.svg"
             />
           </div>
@@ -71,7 +61,7 @@ const Index = () => {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Enter Raffle Now
+            PARTICIPAR
           </motion.button>
         </div>
       </div>
