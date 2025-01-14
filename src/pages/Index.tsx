@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import Timer from '../components/Timer';
 import Prize from '../components/Prize';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
-  // Set end date to 7 days from now
   const endDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
@@ -46,11 +47,13 @@ const Index = () => {
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center mb-12">Eventos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Prize 
-              title="Grand Prize"
-              description="An incredible package worth over $1,000"
-              imageUrl="/placeholder.svg"
-            />
+            <div onClick={() => navigate('/property')} className="cursor-pointer">
+              <Prize 
+                title="Grand Prize"
+                description="An incredible package worth over $1,000"
+                imageUrl="/placeholder.svg"
+              />
+            </div>
           </div>
         </div>
 
@@ -60,6 +63,7 @@ const Index = () => {
             className="px-8 py-4 bg-primary text-white rounded-full font-semibold text-lg transition-all duration-300 hover:bg-primary/90 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/property')}
           >
             PARTICIPAR
           </motion.button>
