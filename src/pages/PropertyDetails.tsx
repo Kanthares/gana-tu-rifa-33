@@ -15,7 +15,6 @@ import {
 
 const PropertyDetails = () => {
   const navigate = useNavigate();
-  // Set end date to 7 days from now (same as Index page)
   const endDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
 
   const propertyImages = [
@@ -106,7 +105,7 @@ const PropertyDetails = () => {
 
               <Button 
                 className="w-full text-lg py-6"
-                onClick={() => console.log("Buy tickets clicked")}
+                onClick={() => navigate('/buy-tickets')}
               >
                 Comprar Tickets
               </Button>
