@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ArrowLeft, Home } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Form,
   FormControl,
@@ -19,12 +20,13 @@ type FormData = {
   phone: string;
 };
 
-const TICKET_PRICE_BS = 65; // Example price in Bolivares
-const TICKET_PRICE_USD = 1; // Example price in USD
+const TICKET_PRICE_BS = 65;
+const TICKET_PRICE_USD = 1;
 
 const TicketForm = () => {
   const [ticketCount, setTicketCount] = useState(1);
   const form = useForm<FormData>();
+  const navigate = useNavigate();
 
   const handleIncrement = () => {
     setTicketCount((prev) => prev + 1);
@@ -40,11 +42,35 @@ const TicketForm = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
+      {/* Navigation Menu */}
+      <nav className="bg-white/10 backdrop-blur-lg p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate(-1)}
+              className="text-white hover:text-white/80"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <Link to="/">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:text-white/80"
+              >
+                <Home className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+          <h1 className="text-xl font-bold">Comprar Tickets</h1>
+        </div>
+      </nav>
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto space-y-8">
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 space-y-6">
-            <h2 className="text-2xl font-bold text-center">Comprar Tickets</h2>
-
             {/* Ticket Counter */}
             <div className="space-y-4">
               <div className="flex items-center justify-center space-x-4">
