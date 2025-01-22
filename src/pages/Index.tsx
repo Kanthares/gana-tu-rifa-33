@@ -3,12 +3,11 @@ import Timer from '../components/Timer';
 import Prize from '../components/Prize';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home } from 'lucide-react';
+import { Home, LogIn } from 'lucide-react';
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
@@ -38,6 +37,16 @@ const Index = () => {
                   >
                     <Home className="h-4 w-4" />
                     Inicio
+                  </Button>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Button 
+                    variant="ghost" 
+                    className="flex items-center gap-2"
+                    onClick={() => navigate('/admin/login')}
+                  >
+                    <LogIn className="h-4 w-4" />
+                    Login
                   </Button>
                 </NavigationMenuItem>
               </NavigationMenuList>
