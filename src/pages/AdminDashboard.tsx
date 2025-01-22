@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showEventForm, setShowEventForm] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [events, setEvents] = useState<any[]>(() => {
     const storedEvents = localStorage.getItem('events');
     return storedEvents ? JSON.parse(storedEvents) : [];
@@ -36,14 +37,29 @@ const AdminDashboard = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newEvents = [eventData, ...events];
+    const newEvents = selectedEvent 
+      ? events.map(event => event === selectedEvent ? eventData : event)
+      : [eventData, ...events];
     setEvents(newEvents);
     localStorage.setItem('events', JSON.stringify(newEvents));
     toast({
       title: "Success",
-      description: "Event created successfully",
+      description: selectedEvent ? "Event updated successfully" : "Event created successfully",
     });
     setShowEventForm(false);
+    setSelectedEvent(null);
+    setEventData({
+      title: "",
+      description: "",
+      propertyName: "",
+      rooms: "",
+      bathrooms: "",
+      carStalls: "",
+      squareMeters: "",
+      duration: 7,
+      images: [],
+      endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    });
   };
 
   const removeImage = (index: number) => {
@@ -64,6 +80,7 @@ const AdminDashboard = () => {
     }
     
     if (action === 'edit') {
+      setSelectedEvent(events[0]);
       setEventData(events[0]);
       setShowEventForm(true);
     } else {
@@ -103,7 +120,7 @@ const AdminDashboard = () => {
           {/* Event Management Options */}
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6">
             <h2 className="text-2xl font-bold mb-4">Event Management</h2>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-4">
               <Button onClick={() => handleEventAction('edit')} variant="outline">
                 Edit Event
               </Button>
@@ -114,12 +131,28 @@ const AdminDashboard = () => {
                 Delete Event
               </Button>
             </div>
+            {events.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-lg font-semibold mb-2">Current Event:</h3>
+                <div 
+                  className="p-4 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
+                  onClick={() => {
+                    setSelectedEvent(events[0]);
+                    setEventData(events[0]);
+                    setShowEventForm(true);
+                  }}
+                >
+                  <p className="text-lg font-medium">{events[0].title}</p>
+                  <p className="text-sm text-gray-300">{events[0].propertyName}</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Event Form */}
           {showEventForm && (
             <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 space-y-6">
-              <h2 className="text-2xl font-bold">Create New Event</h2>
+              <h2 className="text-2xl font-bold">{selectedEvent ? "Edit Event" : "Create New Event"}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Title</label>
@@ -268,7 +301,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <Button type="submit" className="w-full">
-                  Create Event
+                  {selectedEvent ? "Update Event" : "Create Event"}
                 </Button>
               </form>
             </div>

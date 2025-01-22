@@ -22,6 +22,11 @@ const Index = () => {
     }
   }, []);
 
+  const truncateDescription = (description: string, maxLength: number = 100) => {
+    if (description.length <= maxLength) return description;
+    return `${description.substring(0, maxLength)}...`;
+  };
+
   const handleEventClick = (event: any) => {
     localStorage.setItem('selectedEvent', JSON.stringify(event));
     navigate('/property');
@@ -107,7 +112,7 @@ const Index = () => {
               <div key={index} onClick={() => handleEventClick(event)} className="cursor-pointer">
                 <Prize 
                   title={event.propertyName || "Property"}
-                  description={event.description || "Click for more details"}
+                  description={truncateDescription(event.description) || "Click for more details"}
                   imageUrl={event.images && event.images.length > 0 ? URL.createObjectURL(event.images[0]) : "/placeholder.svg"}
                 />
               </div>
