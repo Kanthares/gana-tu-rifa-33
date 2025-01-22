@@ -4,14 +4,16 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Home, Upload, Clock } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Home, Upload } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showEventForm, setShowEventForm] = useState(false);
-  const [events, setEvents] = useState<any[]>([]); // In a real app, this would be fetched from an API
+  const [events, setEvents] = useState<any[]>(() => {
+    const storedEvents = localStorage.getItem('events');
+    return storedEvents ? JSON.parse(storedEvents) : [];
+  });
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
@@ -22,6 +24,7 @@ const AdminDashboard = () => {
     squareMeters: "",
     duration: 7,
     images: [] as File[],
+    endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,6 +36,9 @@ const AdminDashboard = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newEvents = [eventData, ...events];
+    setEvents(newEvents);
+    localStorage.setItem('events', JSON.stringify(newEvents));
     toast({
       title: "Success",
       description: "Event created successfully",
@@ -56,11 +62,14 @@ const AdminDashboard = () => {
       });
       return;
     }
-    // Handle the action (edit or delete) here
+    
     if (action === 'edit') {
+      setEventData(events[0]);
       setShowEventForm(true);
     } else {
-      // Handle delete
+      const newEvents = events.slice(1);
+      setEvents(newEvents);
+      localStorage.setItem('events', JSON.stringify(newEvents));
       toast({
         title: "Success",
         description: "Event deleted successfully",

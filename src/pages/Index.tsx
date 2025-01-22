@@ -6,16 +6,26 @@ import { Button } from '@/components/ui/button';
 import { Home, LogIn } from 'lucide-react';
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
+  NavigationMenuItem,
 } from "@/components/ui/navigation-menu";
+import { useEffect, useState } from 'react';
 
 const Index = () => {
-  const endDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+  const [events, setEvents] = useState<any[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedEvents = localStorage.getItem('events');
+    if (storedEvents) {
+      setEvents(JSON.parse(storedEvents));
+    }
+  }, []);
+
+  const handleEventClick = (event: any) => {
+    localStorage.setItem('selectedEvent', JSON.stringify(event));
+    navigate('/property');
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
@@ -86,20 +96,22 @@ const Index = () => {
 
         {/* Timer Section */}
         <div className="mb-16">
-          <Timer endDate={endDate} />
+          {events.length > 0 && <Timer endDate={new Date(events[0].endDate || new Date().getTime() + 7 * 24 * 60 * 60 * 1000)} />}
         </div>
 
-        {/* Prizes Section */}
+        {/* Events Section */}
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center mb-12">Eventos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div onClick={() => navigate('/property')} className="cursor-pointer">
-              <Prize 
-                title="Grand Prize"
-                description="An incredible package worth over $1,000"
-                imageUrl="/placeholder.svg"
-              />
-            </div>
+            {events.map((event, index) => (
+              <div key={index} onClick={() => handleEventClick(event)} className="cursor-pointer">
+                <Prize 
+                  title={event.propertyName || "Property"}
+                  description={event.description || "Click for more details"}
+                  imageUrl={event.images && event.images.length > 0 ? URL.createObjectURL(event.images[0]) : "/placeholder.svg"}
+                />
+              </div>
+            ))}
           </div>
         </div>
 

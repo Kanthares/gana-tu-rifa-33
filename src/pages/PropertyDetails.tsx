@@ -3,31 +3,37 @@ import Timer from "@/components/Timer";
 import { Button } from "@/components/ui/button";
 import { Bed, Bath, Car, House, Home } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import {
   NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
+  NavigationMenuItem,
 } from "@/components/ui/navigation-menu";
 
 const PropertyDetails = () => {
   const navigate = useNavigate();
-  const endDate = new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000);
+  const [event, setEvent] = useState<any>(null);
 
-  const propertyImages = [
-    "/placeholder.svg",
-    "/placeholder.svg",
-    "/placeholder.svg"
-  ];
+  useEffect(() => {
+    const storedEvent = localStorage.getItem('selectedEvent');
+    if (storedEvent) {
+      setEvent(JSON.parse(storedEvent));
+    }
+  }, []);
+
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white flex items-center justify-center">
+        <p>No event selected</p>
+      </div>
+    );
+  }
 
   const propertyFeatures = [
-    { icon: <Bed className="h-6 w-6" />, label: "4 Habitaciones" },
-    { icon: <Bath className="h-6 w-6" />, label: "3 Baños" },
-    { icon: <Car className="h-6 w-6" />, label: "2 Puestos de Autos" },
-    { icon: <House className="h-6 w-6" />, label: "2,500 Mt2" }
+    { icon: <Bed className="h-6 w-6" />, label: `${event.rooms} Habitaciones` },
+    { icon: <Bath className="h-6 w-6" />, label: `${event.bathrooms} Baños` },
+    { icon: <Car className="h-6 w-6" />, label: `${event.carStalls} Puestos de Autos` },
+    { icon: <House className="h-6 w-6" />, label: `${event.squareMeters} Mt2` }
   ];
 
   return (
@@ -64,16 +70,16 @@ const PropertyDetails = () => {
           {/* Left Column - Slider and Timer */}
           <div className="space-y-6">
             <div className="bg-white/5 backdrop-blur-lg rounded-xl p-4">
-              <Timer endDate={endDate} />
+              <Timer endDate={new Date(event.endDate || new Date().getTime() + event.duration * 24 * 60 * 60 * 1000)} />
             </div>
             
             <Carousel className="w-full">
               <CarouselContent>
-                {propertyImages.map((image, index) => (
+                {event.images && event.images.map((image: File, index: number) => (
                   <CarouselItem key={index}>
                     <div className="aspect-video relative rounded-lg overflow-hidden">
                       <img
-                        src={image}
+                        src={URL.createObjectURL(image)}
                         alt={`Property image ${index + 1}`}
                         className="object-cover w-full h-full"
                       />
@@ -89,9 +95,9 @@ const PropertyDetails = () => {
           {/* Right Column - Property Details */}
           <div className="space-y-8">
             <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6">
-              <h2 className="text-3xl font-bold mb-4">Nombre de la propiedad</h2>
+              <h2 className="text-3xl font-bold mb-4">{event.propertyName}</h2>
               <p className="text-gray-300 mb-6">
-                Localizada en Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                {event.description}
               </p>
               
               <div className="grid grid-cols-2 gap-4 mb-8">
