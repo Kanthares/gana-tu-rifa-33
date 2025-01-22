@@ -12,13 +12,19 @@ const AdminDashboard = () => {
   const [eventData, setEventData] = useState({
     title: "",
     description: "",
+    propertyName: "",
+    rooms: "",
+    bathrooms: "",
+    carStalls: "",
+    squareMeters: "",
     duration: 7,
-    image: null as File | null,
+    images: [] as File[],
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setEventData({ ...eventData, image: e.target.files[0] });
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setEventData({ ...eventData, images: [...eventData.images, ...filesArray] });
     }
   };
 
@@ -28,6 +34,13 @@ const AdminDashboard = () => {
     toast({
       title: "Success",
       description: "Event created successfully",
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setEventData({
+      ...eventData,
+      images: eventData.images.filter((_, i) => i !== index),
     });
   };
 
@@ -69,6 +82,73 @@ const AdminDashboard = () => {
               </div>
 
               <div>
+                <label className="block text-sm font-medium mb-2">Property Name</label>
+                <Input
+                  value={eventData.propertyName}
+                  onChange={(e) =>
+                    setEventData({ ...eventData, propertyName: e.target.value })
+                  }
+                  className="bg-white/10 border-white/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Rooms</label>
+                  <Input
+                    type="number"
+                    value={eventData.rooms}
+                    onChange={(e) =>
+                      setEventData({ ...eventData, rooms: e.target.value })
+                    }
+                    min="0"
+                    className="bg-white/10 border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Bathrooms</label>
+                  <Input
+                    type="number"
+                    value={eventData.bathrooms}
+                    onChange={(e) =>
+                      setEventData({ ...eventData, bathrooms: e.target.value })
+                    }
+                    min="0"
+                    className="bg-white/10 border-white/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Car Stalls</label>
+                  <Input
+                    type="number"
+                    value={eventData.carStalls}
+                    onChange={(e) =>
+                      setEventData({ ...eventData, carStalls: e.target.value })
+                    }
+                    min="0"
+                    className="bg-white/10 border-white/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Square Meters</label>
+                  <Input
+                    type="number"
+                    value={eventData.squareMeters}
+                    onChange={(e) =>
+                      setEventData({ ...eventData, squareMeters: e.target.value })
+                    }
+                    min="0"
+                    className="bg-white/10 border-white/20"
+                  />
+                </div>
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium mb-2">Description</label>
                 <Textarea
                   value={eventData.description}
@@ -98,15 +178,41 @@ const AdminDashboard = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Image</label>
-                <div className="flex items-center space-x-2">
-                  <Input
-                    type="file"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    className="bg-white/10 border-white/20"
-                  />
-                  <Upload className="h-5 w-5" />
+                <label className="block text-sm font-medium mb-2">Images</label>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="file"
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      multiple
+                      className="bg-white/10 border-white/20"
+                    />
+                    <Upload className="h-5 w-5" />
+                  </div>
+                  
+                  {eventData.images.length > 0 && (
+                    <div className="grid grid-cols-2 gap-4">
+                      {eventData.images.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={URL.createObjectURL(image)}
+                            alt={`Preview ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => removeImage(index)}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
