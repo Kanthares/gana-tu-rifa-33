@@ -10,6 +10,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [showEventForm, setShowEventForm] = useState(false);
+  const [showDeleteList, setShowDeleteList] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [events, setEvents] = useState<any[]>(() => {
     const storedEvents = localStorage.getItem('events');
@@ -44,7 +45,7 @@ const AdminDashboard = () => {
     localStorage.setItem('events', JSON.stringify(newEvents));
     toast({
       title: "Success",
-      description: selectedEvent ? "Event updated successfully" : "Event created successfully",
+      description: selectedEvent ? "Event edited successfully" : "Event created successfully",
     });
     setShowEventForm(false);
     setSelectedEvent(null);
@@ -83,15 +84,21 @@ const AdminDashboard = () => {
       setSelectedEvent(events[0]);
       setEventData(events[0]);
       setShowEventForm(true);
+      setShowDeleteList(false);
     } else {
-      const newEvents = events.slice(1);
-      setEvents(newEvents);
-      localStorage.setItem('events', JSON.stringify(newEvents));
-      toast({
-        title: "Success",
-        description: "Event deleted successfully",
-      });
+      setShowDeleteList(true);
+      setShowEventForm(false);
     }
+  };
+
+  const handleDeleteEvent = (eventToDelete: any) => {
+    const newEvents = events.filter(event => event !== eventToDelete);
+    setEvents(newEvents);
+    localStorage.setItem('events', JSON.stringify(newEvents));
+    toast({
+      title: "Success",
+      description: "Event has been successfully deleted",
+    });
   };
 
   return (
@@ -101,7 +108,7 @@ const AdminDashboard = () => {
           <Button variant="ghost" onClick={() => navigate("/")} className="text-white">
             <Home className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">'Panel de Administrador'</h1>
+          <h1 className="text-xl font-bold">Panel de Administrador</h1>
           <Button
             variant="ghost"
             onClick={() => {
@@ -119,21 +126,61 @@ const AdminDashboard = () => {
         <div className="max-w-2xl mx-auto">
           {/* Event Management Options */}
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6">
-            <h2 className="text-2xl font-bold mb-4">Editor de Eventos</h2>
+            <h2 className="text-2xl font-bold mb-4">Event Management</h2>
             <div className="flex gap-4 mb-4">
               <Button onClick={() => handleEventAction('edit')} variant="outline">
                 Edit Event
               </Button>
-              <Button onClick={() => setShowEventForm(true)} variant="default">
+              <Button onClick={() => {
+                setShowEventForm(true);
+                setShowDeleteList(false);
+                setSelectedEvent(null);
+                setEventData({
+                  title: "",
+                  description: "",
+                  propertyName: "",
+                  rooms: "",
+                  bathrooms: "",
+                  carStalls: "",
+                  squareMeters: "",
+                  duration: 7,
+                  images: [],
+                  endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                });
+              }} variant="default">
                 Create Event
               </Button>
               <Button onClick={() => handleEventAction('delete')} variant="destructive">
                 Delete Event
               </Button>
             </div>
-            {events.length > 0 && (
+
+            {/* Delete List */}
+            {showDeleteList && events.length > 0 && (
+              <div className="mt-4 space-y-4">
+                <h3 className="text-lg font-semibold mb-2">Select an event to delete:</h3>
+                {events.map((event, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-lg">
+                    <div>
+                      <p className="text-lg font-medium">{event.title}</p>
+                      <p className="text-sm text-gray-300">{event.propertyName}</p>
+                    </div>
+                    <Button 
+                      variant="destructive"
+                      onClick={() => handleDeleteEvent(event)}
+                      size="sm"
+                    >
+                      Delete
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Current Event Display */}
+            {events.length > 0 && !showDeleteList && (
               <div className="mt-4">
-                <h3 className="text-lg font-semibold mb-2">Event:</h3>
+                <h3 className="text-lg font-semibold mb-2">Current Event:</h3>
                 <div 
                   className="p-4 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
                   onClick={() => {
