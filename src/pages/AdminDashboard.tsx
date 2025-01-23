@@ -101,7 +101,7 @@ const AdminDashboard = () => {
           <Button variant="ghost" onClick={() => navigate("/")} className="text-white">
             <Home className="h-5 w-5" />
           </Button>
-          <h1 className="text-xl font-bold">Admin Dashboard</h1>
+          <h1 className="text-xl font-bold">'Panel de Administrador'</h1>
           <Button
             variant="ghost"
             onClick={() => {
@@ -119,7 +119,7 @@ const AdminDashboard = () => {
         <div className="max-w-2xl mx-auto">
           {/* Event Management Options */}
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6">
-            <h2 className="text-2xl font-bold mb-4">Event Management</h2>
+            <h2 className="text-2xl font-bold mb-4">Editor de Eventos</h2>
             <div className="flex gap-4 mb-4">
               <Button onClick={() => handleEventAction('edit')} variant="outline">
                 Edit Event
@@ -133,7 +133,7 @@ const AdminDashboard = () => {
             </div>
             {events.length > 0 && (
               <div className="mt-4">
-                <h3 className="text-lg font-semibold mb-2">Current Event:</h3>
+                <h3 className="text-lg font-semibold mb-2">Event:</h3>
                 <div 
                   className="p-4 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
                   onClick={() => {
@@ -152,7 +152,7 @@ const AdminDashboard = () => {
           {/* Event Form */}
           {showEventForm && (
             <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 space-y-6">
-              <h2 className="text-2xl font-bold">{selectedEvent ? "Edit Event" : "Create New Event"}</h2>
+              <h2 className="text-2xl font-bold">{selectedEvent ? "Edit Event" : "New Event"}</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-2">Title</label>

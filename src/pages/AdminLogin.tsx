@@ -30,7 +30,7 @@ const AdminLogin = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-8">
-            <h1 className="text-2xl font-bold mb-6 text-center">Admin Login</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Iniciar Sesion</h1>
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <Input
