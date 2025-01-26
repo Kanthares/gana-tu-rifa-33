@@ -53,7 +53,7 @@ if (!$titulo || !$nombrePropiedad || !$habitaciones || !$baños || !$puestoAuto 
     exit;
 }
 
-// Preparar y ejecutar consulta
+//Preparar y ejecutar consulta
 $sql = "INSERT INTO eventos (titulo, nombrePropiedad, habitaciones, baños, puestoAuto, tamaño, descripcion, duracion, img) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ssiiiisss", $titulo, $nombrePropiedad, $habitaciones, $baños, $puestoAuto, $tamaño, $descripcion, $duracion, $img);
@@ -64,7 +64,6 @@ if ($stmt->execute()) {
     echo json_encode(["status" => "error", "message" => "Error al guardar el evento: " . $stmt->error]);
 }
 
-// Cerrar conexión
 $stmt->close();
 $conn->close();
 ?>
