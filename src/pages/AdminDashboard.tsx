@@ -17,8 +17,8 @@ const AdminDashboard = () => {
   
   // Estado para almacenar los eventos, inicializando desde localStorage.
   const [events, setEvents] = useState<any[]>(() => {
-    const storedEvents = localStorage.getItem('events'); // Obtiene los eventos almacenados.
-    return storedEvents ? JSON.parse(storedEvents) : []; // Devuelve los eventos parseados o un array vacío.
+    const storedEvents = localStorage.getItem('events'); 
+    return storedEvents ? JSON.parse(storedEvents) : []; 
   });
 
   // Esto es para guardar los datos del evento que se está creando o editando.
@@ -47,13 +47,12 @@ const AdminDashboard = () => {
   // Maneja el envío del formulario.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Crea una nueva lista de eventos, editando el evento seleccionado o agregando uno nuevo.
     const newEvents = selectedEvent 
-      ? events.map(event => event === selectedEvent ? eventData : event) // Edita el evento seleccionado.
-      : [eventData, ...events]; // Agrega el nuevo evento al principio.
+      ? events.map(event => event === selectedEvent ? eventData : event) 
+      : [eventData, ...events]; 
 
     setEvents(newEvents); 
-    localStorage.setItem('events', JSON.stringify(newEvents)); // Guarda la nueva lista en localStorage.
+    localStorage.setItem('events', JSON.stringify(newEvents)); 
     
     //Esto es solo para que aparezca un mensaje de guardado, pero no funciona no se por que
     toast({
