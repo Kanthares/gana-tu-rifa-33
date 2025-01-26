@@ -53,6 +53,8 @@ const AdminDashboard = () => {
 
     setEvents(newEvents); 
     localStorage.setItem('events', JSON.stringify(newEvents)); 
+
+    console.log("Event Data: ", eventData);
     
     //Esto es solo para que aparezca un mensaje de guardado, pero no funciona no se por que
     toast({
