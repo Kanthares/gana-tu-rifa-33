@@ -25,7 +25,7 @@ const AdminDashboard = () => {
     carStalls: "",
     squareMeters: "",
     duration: 7,
-    images: [] as File[], // Asegúrate de que las imágenes sean archivos
+    images: [] as File[],
     endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
@@ -36,68 +36,31 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Crear el FormData
-    const formData = new FormData();
-
-    formData.append("titulo", eventData.title);
-    formData.append("nombrePropiedad", eventData.propertyName);
-    formData.append("habitaciones", eventData.rooms);
-    formData.append("baños", eventData.bathrooms);
-    formData.append("puestoAuto", eventData.carStalls);
-    formData.append("tamaño", eventData.squareMeters);
-    formData.append("descripcion", eventData.description);
-    formData.append("duracion", eventData.duration.toString());
-
-    // Agregar imágenes al FormData
-    eventData.images.forEach((image) => {
-      formData.append("img[]", image);
+    const newEvents = selectedEvent 
+      ? events.map(event => event === selectedEvent ? eventData : event)
+      : [eventData, ...events];
+    setEvents(newEvents);
+    localStorage.setItem('events', JSON.stringify(newEvents));
+    toast({
+      title: "Success",
+      description: selectedEvent ? "Event edited successfully" : "Event created successfully",
     });
-
-    try {
-      const response = await fetch("http://localhost/tu-archivo-php.php", { // Asegúrate de actualizar la URL
-        method: "POST",
-        body: formData, // Usar FormData para enviar los datos
-      });
-
-      const data = await response.json();
-
-      if (data.status === "error") {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: data.message, // Mostrar mensaje de error
-        });
-      } else {
-        toast({
-          title: "Success",
-          description: selectedEvent ? "Event edited successfully" : "Event created successfully",
-        });
-        setShowEventForm(false);
-        setSelectedEvent(null);
-        setEventData({
-          title: "",
-          description: "",
-          propertyName: "",
-          rooms: "",
-          bathrooms: "",
-          carStalls: "",
-          squareMeters: "",
-          duration: 7,
-          images: [],
-          endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        });
-      }
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to connect to the server",
-      });
-    }
+    setShowEventForm(false);
+    setSelectedEvent(null);
+    setEventData({
+      title: "",
+      description: "",
+      propertyName: "",
+      rooms: "",
+      bathrooms: "",
+      carStalls: "",
+      squareMeters: "",
+      duration: 7,
+      images: [],
+      endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    });
   };
 
   const removeImage = (index: number) => {
@@ -116,7 +79,7 @@ const AdminDashboard = () => {
       });
       return;
     }
-
+    
     if (action === 'edit') {
       setSelectedEvent(events[0]);
       setEventData(events[0]);
@@ -150,7 +113,7 @@ const AdminDashboard = () => {
             variant="ghost"
             onClick={() => {
               localStorage.removeItem("isAdmin");
-              navigate("/"); // Redirigir después del logout
+              navigate("/");
             }}
             className="text-white"
           >
@@ -328,35 +291,64 @@ const AdminDashboard = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Images</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleImageChange}
-                    className="bg-white/10 border-white/20 p-2"
+                  <label className="block text-sm font-medium mb-2">
+                    Duration (days)
+                  </label>
+                  <Input
+                    type="number"
+                    value={eventData.duration}
+                    onChange={(e) =>
+                      setEventData({
+                        ...eventData,
+                        duration: parseInt(e.target.value),
+                      })
+                    }
+                    min="1"
+                    className="bg-white/10 border-white/20"
                   />
-                  <div className="mt-4 space-x-4">
-                    {eventData.images.map((image, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center gap-2 p-2 bg-white/10 rounded-lg"
-                      >
-                        <span>{image.name}</span>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => removeImage(index)}
-                        >
-                          Remove
-                        </Button>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Images</label>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="file"
+                        onChange={handleImageChange}
+                        accept="image/*"
+                        multiple
+                        className="bg-white/10 border-white/20"
+                      />
+                      <Upload className="h-5 w-5" />
+                    </div>
+                    
+                    {eventData.images.length > 0 && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {eventData.images.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={URL.createObjectURL(image)}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => removeImage(index)}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
-                <Button type="submit" className="mt-4 w-full" variant="default">
-                  {selectedEvent ? "Edit Event" : "Create Event"}
+                <Button type="submit" className="w-full">
+                  {selectedEvent ? "Update Event" : "Create Event"}
                 </Button>
               </form>
             </div>
