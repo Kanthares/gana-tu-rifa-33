@@ -54,9 +54,7 @@ const AdminDashboard = () => {
     setEvents(newEvents); 
     localStorage.setItem('events', JSON.stringify(newEvents)); 
 
-    console.log("Event Data: ", eventData);
-    
-    //Esto es solo para que aparezca un mensaje de guardado, pero no funciona no se por que
+    // Muestra un mensaje de éxito al crear o editar el evento.
     toast({
       title: "Success",
       description: selectedEvent ? "Event edited successfully" : "Event created successfully",
@@ -87,14 +85,42 @@ const AdminDashboard = () => {
     });
   };
 
-  // Maneja acciones de eventos como editar o eliminar.
-  const handleEventAction = (action: 'edit' | 'delete') => {
-    if (events.length === 0) { // Verifica si hay eventos disponibles.
+  // Maneja acciones de eventos como crear, editar o eliminar.
+  const handleEventAction = (action: 'edit' | 'delete' | 'create') => {
+    if (action === 'create') {
+      // Crea un nuevo evento con datos predeterminados.
+      const newEvent = {
+        title: "Nuevo Evento",
+        description: "Descripción del nuevo evento",
+        propertyName: "Nombre de la propiedad",
+        rooms: "3",
+        bathrooms: "2",
+        carStalls: "1",
+        squareMeters: "100",
+        duration: 7,
+        images: [],
+        endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+      };
+
+      // Actualiza el estado de eventos añadiendo el nuevo evento.
+      setEvents((prevEvents) => [newEvent, ...prevEvents]);
+      localStorage.setItem('events', JSON.stringify([newEvent, ...events]));
+
+      // Muestra un mensaje de éxito al crear el evento.
+      toast({
+        title: "Éxito",
+        description: "Evento creado exitosamente",
+      });
+      return;
+    }
+
+    // Verifica si hay eventos disponibles para editar o eliminar.
+    if (events.length === 0) {
       // Muestra un mensaje de error si no hay eventos.
       toast({
         variant: "destructive",
         title: "Error",
-        description: "There is no event",
+        description: "No hay eventos disponibles",
       });
       return; 
     }
@@ -116,7 +142,7 @@ const AdminDashboard = () => {
     setEvents(newEvents); // Actualiza el estado de eventos.
     localStorage.setItem('events', JSON.stringify(newEvents)); // Guarda la nueva lista en localStorage.
     
-    //Esto tampoco funciona, es otro mensaje
+    // Muestra un mensaje de éxito al eliminar el evento.
     toast({
       title: "Success",
       description: "Event has been successfully deleted",
@@ -158,24 +184,7 @@ const AdminDashboard = () => {
                 Edit Event
               </Button>
               {/* Botón para crear un nuevo evento */}
-              <Button onClick={() => {
-                setShowEventForm(true); // Muestra el formulario de eventos.
-                setShowDeleteList(false); // Oculta la lista de eliminación.
-                setSelectedEvent(null); // Resetea el evento seleccionado.
-                // Resetea los datos del evento.
-                setEventData({
-                  title: "",
-                  description: "",
-                  propertyName: "",
-                  rooms: "",
-                  bathrooms: "",
-                  carStalls: "",
-                  squareMeters: "",
-                  duration: 7,
-                  images: [],
-                  endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                });
-              }} variant="default">
+              <Button onClick={() => handleEventAction('create')} variant="default">
                 Create Event
               </Button>
               {/* Botón para eliminar eventos */}
