@@ -147,14 +147,14 @@ const AdminDashboard = () => {
       if (response.status === 200) {
         toast({
           title: "Success",
-          description: "Event has been successfully deleted",
+          description: "El evento se ha eliminado correctamente.",
         });
         fetchEvents(); // Refrescar la lista de eventos
       } else {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to delete event",
+          description: "No se pudo eliminar el evento",
         });
       }
     } catch (error) {
