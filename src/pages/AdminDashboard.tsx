@@ -1,69 +1,114 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button"; 
-import { Input } from "@/components/ui/input"; 
-import { Textarea } from "@/components/ui/textarea"; 
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Home, Upload } from "lucide-react";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { toast } = useToast(); 
+  const { toast } = useToast();
 
-  // visibilidad del formulario y la lista de eliminación.
   const [showEventForm, setShowEventForm] = useState(false);
   const [showDeleteList, setShowDeleteList] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<any>(null); 
-  
-  // Estado para almacenar los eventos, inicializando desde localStorage.
-  const [events, setEvents] = useState<any[]>(() => {
-    const storedEvents = localStorage.getItem('events'); 
-    return storedEvents ? JSON.parse(storedEvents) : []; 
-  });
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [events, setEvents] = useState<any[]>([]);
 
-  // Esto es para guardar los datos del evento que se está creando o editando.
   const [eventData, setEventData] = useState({
-    title: "", 
-    description: "", 
+    id: "", // Nuevo campo para el ID
+    title: "",
+    description: "",
     propertyName: "",
-    rooms: "", 
-    bathrooms: "", 
-    carStalls: "", 
-    squareMeters: "", 
+    rooms: "",
+    bathrooms: "",
+    carStalls: "",
+    squareMeters: "",
     duration: 7,
-    images: [] as File[], 
-    endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(), 
+    images: [] as File[],
+    endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   });
 
-  // Maneja el cambio de imágenes al seleccionar archivos.
+  // Función para obtener todos los eventos
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch("http://localhost/GanaTuRifa/controller/Evento.php");
+      if (response.ok) {
+        const data = await response.json();
+        setEvents(data);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch events",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) { // Verifica si hay archivos seleccionados.
-      const filesArray = Array.from(e.target.files); // Convierte los archivos a un array.
-      // Actualiza el estado de eventData para incluir las nuevas imágenes.
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
       setEventData({ ...eventData, images: [...eventData.images, ...filesArray] });
     }
   };
 
-  // Maneja el envío del formulario.
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newEvents = selectedEvent 
-      ? events.map(event => event === selectedEvent ? eventData : event) 
-      : [eventData, ...events]; 
+    const { id, title, description, propertyName, rooms, bathrooms, carStalls, squareMeters, duration } = eventData;
 
-    setEvents(newEvents); 
-    localStorage.setItem('events', JSON.stringify(newEvents)); 
+    const method = id ? "PUT" : "POST"; // Usar PUT si hay un ID, sino usara POST 
+    const url = id
+      ? `http://localhost/GanaTuRifa/controller/Evento.php?id=${id}`
+      : "http://localhost/GanaTuRifa/controller/Evento.php";
 
-    // Muestra un mensaje de éxito al crear o editar el evento.
-    toast({
-      title: "Success",
-      description: selectedEvent ? "Event edited successfully" : "Event created successfully",
-    });
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id, // Incluir el ID en la solicitud
+          titulo: title,
+          propietario: propertyName,
+          cuartos: rooms,
+          baños: bathrooms,
+          estacionamientos: carStalls,
+          metrosCuadrados: squareMeters,
+          descripcion: description,
+          duracion: duration,
+          img: "",
+        }),
+      });
 
-    // Resetea el formulario y el estado del evento seleccionado.
+      if (response.status === 201) {
+        toast({
+          title: "Success",
+          description: id ? "Event updated successfully" : "Event created successfully",
+        });
+        fetchEvents(); // Refrescar la lista de eventos
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to save event",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
     setShowEventForm(false);
     setSelectedEvent(null);
     setEventData({
+      id: "", // Reiniciar el ID
       title: "",
       description: "",
       propertyName: "",
@@ -77,94 +122,59 @@ const AdminDashboard = () => {
     });
   };
 
-  // Elimina una imagen del estado de eventData.
   const removeImage = (index: number) => {
     setEventData({
       ...eventData,
-      images: eventData.images.filter((_, i) => i !== index), // Filtra las imágenes, excluyendo la eliminada.
+      images: eventData.images.filter((_, i) => i !== index),
     });
   };
 
-  // Maneja acciones de eventos como crear, editar o eliminar.
-  const handleEventAction = (action: 'edit' | 'delete' | 'create') => {
-    if (action === 'create') {
-      // Crea un nuevo evento con datos predeterminados.
-      const newEvent = {
-        title: "Nuevo Evento",
-        description: "Descripción del nuevo evento",
-        propertyName: "Nombre de la propiedad",
-        rooms: "3",
-        bathrooms: "2",
-        carStalls: "1",
-        squareMeters: "100",
-        duration: 7,
-        images: [],
-        endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-      };
-
-      // Actualiza el estado de eventos añadiendo el nuevo evento.
-      setEvents((prevEvents) => [newEvent, ...prevEvents]);
-      localStorage.setItem('events', JSON.stringify([newEvent, ...events]));
-
-      // Muestra un mensaje de éxito al crear el evento.
-      toast({
-        title: "Éxito",
-        description: "Evento creado exitosamente",
-      });
-      return;
-    }
-
-    // Verifica si hay eventos disponibles para editar o eliminar.
-    if (events.length === 0) {
-      // Muestra un mensaje de error si no hay eventos.
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No hay eventos disponibles",
-      });
-      return; 
-    }
-    
-    if (action === 'edit') { 
-      setSelectedEvent(events[0]); 
-      setEventData(events[0]);
-      setShowEventForm(true); 
-      setShowDeleteList(false); 
-    } else { 
-      setShowDeleteList(true); 
-      setShowEventForm(false); 
-    }
+  // Función para seleccionar un evento para editar
+  const handleEditEvent = (event: any) => {
+    setSelectedEvent(event);
+    setEventData(event); // Llenar el formulario con los datos del evento seleccionado
+    setShowEventForm(true);
+    setShowDeleteList(false);
   };
 
-  // Maneja la eliminación de un evento.
-  const handleDeleteEvent = (eventToDelete: any) => {
-    const newEvents = events.filter(event => event !== eventToDelete); // Filtra el evento a eliminar.
-    setEvents(newEvents); // Actualiza el estado de eventos.
-    localStorage.setItem('events', JSON.stringify(newEvents)); // Guarda la nueva lista en localStorage.
-    
-    // Muestra un mensaje de éxito al eliminar el evento.
-    toast({
-      title: "Success",
-      description: "Event has been successfully deleted",
-    });
+  // Función para eliminar un evento
+  const handleDeleteEvent = async (eventToDelete: any) => {
+    try {
+      const response = await fetch(`http://localhost/GanaTuRifa/controller/Evento.php?id=${eventToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.status === 200) {
+        toast({
+          title: "Success",
+          description: "Event has been successfully deleted",
+        });
+        fetchEvents(); // Refrescar la lista de eventos
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to delete event",
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
-      {/* Barra de navegación */}
       <nav className="bg-white/10 backdrop-blur-lg p-4">
         <div className="container mx-auto flex justify-between items-center">
-          {/* Botón de inicio que redirige a la página principal */}
           <Button variant="ghost" onClick={() => navigate("/")} className="text-white">
             <Home className="h-5 w-5" />
           </Button>
           <h1 className="text-xl font-bold">Panel de Administrador</h1>
-          {/* Botón de cierre de sesión */}
           <Button
             variant="ghost"
             onClick={() => {
-              localStorage.removeItem("isAdmin"); // Elimina el estado de administrador del localStorage.
-              navigate("/"); // Redirige a la página principal.
+              localStorage.removeItem("isAdmin");
+              navigate("/");
             }}
             className="text-white"
           >
@@ -175,106 +185,99 @@ const AdminDashboard = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
-          {/* Opciones de gestión de eventos */}
           <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6">
             <h2 className="text-2xl font-bold mb-4">Event Management</h2>
             <div className="flex gap-4 mb-4">
-              {/* Botón para editar eventos */}
-              <Button onClick={() => handleEventAction('edit')} variant="outline">
-                Edit Event
-              </Button>
-              {/* Botón para crear un nuevo evento */}
-              <Button onClick={() => handleEventAction('create')} variant="default">
+              <Button
+                onClick={() => {
+                  setShowEventForm(true);
+                  setShowDeleteList(false);
+                  setSelectedEvent(null);
+                  setEventData({
+                    id: "", // Reiniciar el ID
+                    title: "",
+                    description: "",
+                    propertyName: "",
+                    rooms: "",
+                    bathrooms: "",
+                    carStalls: "",
+                    squareMeters: "",
+                    duration: 7,
+                    images: [],
+                    endDate: new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                  });
+                }}
+                variant="default"
+              >
                 Create Event
               </Button>
-              {/* Botón para eliminar eventos */}
-              <Button onClick={() => handleEventAction('delete')} variant="destructive">
+              <Button onClick={() => setShowDeleteList(true)} variant="destructive">
                 Delete Event
               </Button>
             </div>
 
-            {/* Lista de eliminación de eventos */}
-            {showDeleteList && events.length > 0 && (
-              <div className="mt-4 space-y-4">
-                <h3 className="text-lg font-semibold mb-2">Select an event to delete:</h3>
-                {events.map((event, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-white/10 rounded-lg">
-                    <div>
-                      <p className="text-lg font-medium">{event.title}</p>
-                      <p className="text-sm text-gray-300">{event.propertyName}</p>
-                    </div>
-                    {/* Botón para eliminar un evento específico */}
-                    <Button 
-                      variant="destructive"
-                      onClick={() => handleDeleteEvent(event)}
-                      size="sm"
-                    >
+            {/* Lista de eventos */}
+            <div className="mt-4 space-y-4">
+              <h3 className="text-lg font-semibold mb-2">Event List:</h3>
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  className="flex items-center justify-between p-4 bg-white/10 rounded-lg"
+                >
+                  <div>
+                    <p className="text-lg font-medium">{event.title}</p>
+                    <p className="text-sm text-gray-300">{event.propertyName}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => handleEditEvent(event)}>
+                      Edit
+                    </Button>
+                    <Button variant="destructive" onClick={() => handleDeleteEvent(event)}>
                       Delete
                     </Button>
                   </div>
-                ))}
-              </div>
-            )}
-
-            {/* Muestra el evento actual */}
-            {events.length > 0 && !showDeleteList && (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold mb-2">Current Event:</h3>
-                <div 
-                  className="p-4 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
-                  onClick={() => {
-                    setSelectedEvent(events[0]); // Selecciona el primer evento.
-                    setEventData(events[0]); // Carga los datos del evento en el formulario.
-                    setShowEventForm(true); // Muestra el formulario de eventos.
-                  }}
-                >
-                  <p className="text-lg font-medium">{events[0].title}</p>
-                  <p className="text-sm text-gray-300">{events[0].propertyName}</p>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
           </div>
 
-          {/* Formulario de eventos */}
+          {/* Formulario de evento */}
           {showEventForm && (
             <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 space-y-6">
-              <h2 className="text-2xl font-bold">{selectedEvent ? "Edit Event" : "New Event"}</h2>
+              <h2 className="text-2xl font-bold">
+                {selectedEvent ? "Edit Event" : "New Event"}
+              </h2>
               <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campo para el título del evento */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Title</label>
                   <Input
-                    value={eventData.title} // Valor del título.
-                    onChange={(e) =>
-                      setEventData({ ...eventData, title: e.target.value }) // Actualiza el título en el estado.
-                    }
+                    value={eventData.title}
+                    onChange={(e) => setEventData({ ...eventData, title: e.target.value })}
                     className="bg-white/10 border-white/20"
                   />
                 </div>
 
-                {/* Campo para el nombre de la propiedad */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Property Name</label>
                   <Input
-                    value={eventData.propertyName} // Valor del nombre de la propiedad.
+                    value={eventData.propertyName}
                     onChange={(e) =>
-                      setEventData({ ...eventData, propertyName: e.target.value }) // Actualiza el nombre en el estado.
+                      setEventData({ ...eventData, propertyName: e.target.value })
                     }
                     className="bg-white/10 border-white/20"
                   />
                 </div>
 
-                {/* Campos para habitaciones y baños */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Rooms</label>
                     <Input
-                      type="number" // Campo numérico para habitaciones.
-                      value={eventData.rooms} // Valor de habitaciones.
+                      type="number"
+                      value={eventData.rooms}
                       onChange={(e) =>
-                        setEventData({ ...eventData, rooms: e.target.value }) // Actualiza el número de habitaciones.
+                        setEventData({ ...eventData, rooms: e.target.value })
                       }
-                      min="0" // Valor mínimo de 0.
+                      min="0"
                       className="bg-white/10 border-white/20"
                     />
                   </div>
@@ -282,28 +285,27 @@ const AdminDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Bathrooms</label>
                     <Input
-                      type="number" // Campo numérico para baños.
-                      value={eventData.bathrooms} // Valor de baños.
+                      type="number"
+                      value={eventData.bathrooms}
                       onChange={(e) =>
-                        setEventData({ ...eventData, bathrooms: e.target.value }) // Actualiza el número de baños.
+                        setEventData({ ...eventData, bathrooms: e.target.value })
                       }
-                      min="0" // Valor mínimo de 0.
+                      min="0"
                       className="bg-white/10 border-white/20"
                     />
                   </div>
                 </div>
 
-                {/* Campos para espacios de estacionamiento y metros cuadrados */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Car Stalls</label>
                     <Input
-                      type="number" // Campo numérico para espacios de estacionamiento.
-                      value={eventData.carStalls} // Valor de espacios de estacionamiento.
+                      type="number"
+                      value={eventData.carStalls}
                       onChange={(e) =>
-                        setEventData({ ...eventData, carStalls: e.target.value }) // Actualiza el número de espacios.
+                        setEventData({ ...eventData, carStalls: e.target.value })
                       }
-                      min="0" // Valor mínimo de 0.
+                      min="0"
                       className="bg-white/10 border-white/20"
                     />
                   </div>
@@ -311,77 +313,70 @@ const AdminDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium mb-2">Square Meters</label>
                     <Input
-                      type="number" // Campo numérico para metros cuadrados.
-                      value={eventData.squareMeters} // Valor de metros cuadrados.
+                      type="number"
+                      value={eventData.squareMeters}
                       onChange={(e) =>
-                        setEventData({ ...eventData, squareMeters: e.target.value }) // Actualiza los metros cuadrados.
+                        setEventData({ ...eventData, squareMeters: e.target.value })
                       }
-                      min="0" // Valor mínimo de 0.
+                      min="0"
                       className="bg-white/10 border-white/20"
                     />
                   </div>
                 </div>
 
-                {/* Campo para la descripción del evento */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Description</label>
                   <Textarea
-                    value={eventData.description} // Valor de la descripción.
+                    value={eventData.description}
                     onChange={(e) =>
-                      setEventData({ ...eventData, description: e.target.value }) // Actualiza la descripción en el estado.
+                      setEventData({ ...eventData, description: e.target.value })
                     }
                     className="bg-white/10 border-white/20"
                   />
                 </div>
 
-                {/* Campo para la duración del evento */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Duration (days)</label>
                   <Input
-                    type="number" // Campo numérico para la duración.
-                    value={eventData.duration} // Valor de duración.
+                    type="number"
+                    value={eventData.duration}
                     onChange={(e) =>
-                      setEventData({
-                        ...eventData,
-                        duration: parseInt(e.target.value), // Actualiza la duración en el estado.
-                      })
+                      setEventData({ ...eventData, duration: parseInt(e.target.value) })
                     }
-                    min="1" // Valor mínimo de 1 día.
+                    min="1"
                     className="bg-white/10 border-white/20"
                   />
                 </div>
 
-                {/* Campo para cargar imágenes */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Images</label>
                   <div className="space-y-4">
                     <div className="flex items-center space-x-2">
                       <Input
-                        type="file" // Campo para seleccionar archivos.
-                        onChange={handleImageChange} // Maneja el cambio de imagen.
-                        accept="image/*" // Acepta solo archivos de imagen.
-                        multiple // Permite seleccionar múltiples imágenes.
+                        type="file"
+                        onChange={handleImageChange}
+                        accept="image/*"
+                        multiple
                         className="bg-white/10 border-white/20"
                       />
-                      <Upload className="h-5 w-5" /> {/* Icono de carga */}
+                      <Upload className="h-5 w-5" />
                     </div>
-                    
-                    {eventData.images.length > 0 && ( // Si hay imágenes seleccionadas.
+
+                    {eventData.images.length > 0 && (
                       <div className="grid grid-cols-2 gap-4">
-                        {eventData.images.map((image, index) => ( // Mapea sobre las imágenes seleccionadas.
+                        {eventData.images.map((image, index) => (
                           <div key={index} className="relative group">
                             <img
-                              src={URL.createObjectURL(image)} // Crea una URL para la vista previa de la imagen.
-                              alt={`Preview ${index + 1}`} // Texto alternativo para la imagen.
+                              src={URL.createObjectURL(image)}
+                              alt={`Preview ${index + 1}`}
                               className="w-full h-32 object-cover rounded-lg"
                             />
-                            {/* Botón para eliminar la imagen */}
                             <Button
                               type="button"
                               variant="destructive"
                               size="sm"
                               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => removeImage(index)} // Maneja la eliminación de la imagen.
+                              onClick={() => removeImage(index)}
                             >
                               Remove
                             </Button>
@@ -392,9 +387,8 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
-                {/* Botón para enviar el formulario */}
                 <Button type="submit" className="w-full">
-                  {selectedEvent ? "Update Event" : "Create Event"} {/* Cambia el texto según el contexto. */}
+                  {selectedEvent ? "Update Event" : "Create Event"}
                 </Button>
               </form>
             </div>
@@ -405,4 +399,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard; // Exporta el componente para su uso en otras partes de la aplicación.
+export default AdminDashboard;
