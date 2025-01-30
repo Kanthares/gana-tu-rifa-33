@@ -20,7 +20,7 @@ const AdminDashboard = () => {
 
   // Obtener los eventos desde el archivo JSON en la carpeta "public".
   useEffect(() => {
-    fetch("/eventos.json") // Ruta del JSON en la carpeta "public"
+    fetch("/eventos.json")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -55,9 +55,8 @@ const AdminDashboard = () => {
 
   // Maneja el cambio de imágenes al seleccionar archivos.
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) { // Verifica si hay archivos seleccionados.
-      const filesArray = Array.from(e.target.files); // Convierte los archivos a un array.
-      // Actualiza el estado de eventData para incluir las nuevas imágenes.
+    if (e.target.files) { 
+      const filesArray = Array.from(e.target.files); 
       setEventData({ ...eventData, images: [...eventData.images, ...filesArray] });
     }
   };
@@ -138,14 +137,13 @@ const AdminDashboard = () => {
   const removeImage = (index: number) => {
     setEventData({
       ...eventData,
-      images: eventData.images.filter((_, i) => i !== index), // Filtra las imágenes, excluyendo la eliminada.
+      images: eventData.images.filter((_, i) => i !== index), 
     });
   };
 
   // Maneja acciones de eventos como editar o eliminar.
   const handleEventAction = (action: 'edit' | 'delete') => {
-    if (events.length === 0) { // Verifica si hay eventos disponibles.
-      // Muestra un mensaje de error si no hay eventos.
+    if (events.length === 0) { 
       toast({
         variant: "destructive",
         title: "Error",
@@ -156,7 +154,7 @@ const AdminDashboard = () => {
     
     if (action === 'edit') { 
       setSelectedEvent(events[0]); 
-      setEventData(events[0]);
+      setEventData(events[0]); // Actualiza eventData con los datos del evento seleccionado
       setShowEventForm(true); 
       setShowDeleteList(false); 
     } else { 
@@ -167,8 +165,8 @@ const AdminDashboard = () => {
 
   // Maneja la eliminación de un evento.
   const handleDeleteEvent = (eventToDelete: any) => {
-    const newEvents = events.filter(event => event !== eventToDelete); // Filtra el evento a eliminar.
-    setEvents(newEvents); // Actualiza el estado de eventos.
+    const newEvents = events.filter(event => event !== eventToDelete); 
+    setEvents(newEvents); 
     
     toast({
       title: "Success",
