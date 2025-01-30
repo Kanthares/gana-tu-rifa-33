@@ -1,14 +1,37 @@
 [
     {
+      "id": 1,
+      "title": "Evento 1",
+      "propertyName": "Propiedad 1",
+      "rooms": "3",
+      "bathrooms": "2",
+      "carStalls": "1",
+      "squareMeters": "120",
+      "description": "Descripción del evento 1",
+      "duration": 7
+    },
+    {
+      "id": 2,
+      "title": "Evento 2",
+      "propertyName": "Propiedad 2",
+      "rooms": "4",
+      "bathrooms": "3",
+      "carStalls": "2",
+      "squareMeters": "150",
+      "description": "Descripción del evento 2",
+      "duration": 10
+    },  
+
+    {
         "id": "1",
-        "titulo": "Departamento",
-        "propietario": "Jonathan",
-        "cuartos": "4",
-        "baños": "2",
-        "estacionamientos": "2",
-        "metrosCuadrados": "2000",
-        "descripcion": "Departamento ubicado en ciudad Alianza",
-        "duracion": "2",
+        "title": "Departamento",
+        "propertyName": "Jonathan",
+        "rooms": "4",
+        "bathrooms": "2",
+        "carStalls": "2",
+        "squareMeters": "2000",
+        "description": "Departamento ubicado en ciudad Alianza",
+        "duration": "2",
         "imagen": ""
     },
     {
