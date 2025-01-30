@@ -20,7 +20,7 @@ const AdminDashboard = () => {
 
   // Obtener los eventos desde el archivo JSON en la carpeta "public".
   useEffect(() => {
-    fetch("../public/eventos.json") // Ruta del JSON en la carpeta "public"
+    fetch("/eventos.json") // Ruta del JSON en la carpeta "public"
       .then((response) => response.json())
       .then((data) => setEvents(data))
       .catch((error) => console.error("Error al obtener datos:", error));
