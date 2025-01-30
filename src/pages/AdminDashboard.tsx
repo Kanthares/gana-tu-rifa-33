@@ -10,7 +10,7 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast(); 
 
-  // visibilidad del formulario y la lista de eliminación.
+  // Visibilidad del formulario y la lista de eliminación.
   const [showEventForm, setShowEventForm] = useState(false);
   const [showDeleteList, setShowDeleteList] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null); 
@@ -21,8 +21,21 @@ const AdminDashboard = () => {
   // Obtener los eventos desde el archivo JSON en la carpeta "public".
   useEffect(() => {
     fetch("/eventos.json") // Ruta del JSON en la carpeta "public"
-      .then((response) => response.json())
-      .then((data) => setEvents(data))
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Datos cargados:", data); // Verifica los datos cargados
+        if (Array.isArray(data)) {
+          setEvents(data); // Asigna los datos si es un array
+        } else {
+          console.error("El archivo JSON no es un array:", data);
+          setEvents([]); // Asigna un array vacío si el JSON no es válido
+        }
+      })
       .catch((error) => console.error("Error al obtener datos:", error));
   }, []);
 
@@ -233,7 +246,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Delete List */}
-            {showDeleteList && events.length > 0 && (
+            {showDeleteList && Array.isArray(events) && events.length > 0 && (
               <div className="mt-4 space-y-4">
                 <h3 className="text-lg font-semibold mb-2">
                   Select an event to delete:
@@ -262,7 +275,7 @@ const AdminDashboard = () => {
             )}
 
             {/* Current Event Display */}
-            {events.length > 0 && !showDeleteList && (
+            {Array.isArray(events) && events.length > 0 && !showDeleteList && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold mb-2">Current Event:</h3>
                 <div
