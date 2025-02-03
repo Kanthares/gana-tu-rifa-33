@@ -1,0 +1,86 @@
+[
+    {
+        "id": "1",
+        "title": "Departamento",
+        "propertyName": "Jonathan",
+        "rooms": "4",
+        "bathrooms": "2",
+        "carStalls": "2",
+        "squareMeters": "2000",
+        "description": "Departamento ubicado en ciudad Alianza",
+        "duration": "2",
+        "imagen": ""
+    },
+    {
+        "id": "3",
+        "title": "Casa",
+        "propertyName": "Antonio Chavez",
+        "rooms": "6",
+        "bathrooms": "3",
+        "carStalls": "2",
+        "squareMeters": "6000",
+        "description": "Casa ubicada en naguanagua",
+        "duration": "7",
+        "imagen": ""
+    },
+    {
+        "id": "5",
+        "title": "Apartamento",
+        "propertyName": "Jose",
+        "rooms": "3",
+        "bathrooms": "1",
+        "carStalls": "0",
+        "squareMeters": "1000",
+        "description": "Casa ubicada en naguanagua",
+        "duration": "7",
+        "imagen": ""
+    },
+    {
+        "id": "6",
+        "title": "Apartamento",
+        "propertyName": "Bustos",
+        "rooms": "5",
+        "bathrooms": "3",
+        "carStalls": "1",
+        "squareMeters": "500",
+        "description": "Casa ubicada en naguanagua",
+        "duration": "7",
+        "imagen": ""
+    },
+    {
+        "id": "9",
+        "title": "townhouse",
+        "propertyName": "Pedro",
+        "rooms": "5",
+        "bathrooms": "3",
+        "carStalls": "2",
+        "squareMeters": "2500",
+        "description": "townhouse en la viña",
+        "duration": "7",
+        "imagen": ""
+    },
+    {
+        "id": "12",
+        "title": "Casa paraparal",
+        "propertyName": "Antonio Chavez",
+        "rooms": "4",
+        "bathrooms": "2",
+        "carStalls": "0",
+        "squareMeters": "50",
+        "description": "Casa ubicada en paraparal sin estacionamiento",
+        "duration": "7",
+        "imagen": ""
+    },
+    {
+        "id": "13",
+        "title": "Casa Guacara",
+        "propertyName": "Jonathan",
+        "rooms": "6",
+        "bathrooms": "2",
+        "carStalls": "2",
+        "squareMeters": "1000",
+        "description": "Casa en guacara",
+        "duration": "7",
+        "imagen": ""
+    }
+  ]
