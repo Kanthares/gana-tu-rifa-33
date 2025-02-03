@@ -36,7 +36,7 @@ const AdminDashboard = () => {
 
   // Función para obtener eventos desde el servidor
   const fetchEvents = async () => {
-    fetch("http://localhost/api/controller/Evento.php")
+    fetch("https://ganaturifa.com/api/controller/Evento.php")
       .then((response) => {
         if (response.ok) {
           return response.json(); // El servidor devuelve un JSON con la lista de eventos
@@ -76,7 +76,7 @@ const AdminDashboard = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    fetch("http://localhost/api/controller/Evento.php", {
+    fetch("https://ganaturifa.com/api/controller/Evento.php", {
       method: selectedEvent ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json",
@@ -144,7 +144,7 @@ const AdminDashboard = () => {
     setEvents(newEvents);
 
     // Aquí puedes hacer la solicitud `DELETE` al servidor para eliminar el evento
-    fetch(`http://localhost/api/controller/Evento.php?id=${eventToDelete.id}`, {
+    fetch(`https://ganaturifa.com/api/controller/Evento.php?id=${eventToDelete.id}`, {
       method: "DELETE",
     })
       .then((response) => {
