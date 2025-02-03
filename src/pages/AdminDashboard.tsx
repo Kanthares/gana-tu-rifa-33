@@ -34,12 +34,12 @@ const AdminDashboard = () => {
     ).toISOString(),
   });
 
-  // Obtener la lista de eventos al montar el componente
-  useEffect(() => {
-    fetch("https://ganaturifa.com/api/controller/Evento.php")
+  // Función para obtener eventos desde el servidor
+  const fetchEvents = async () => {
+    fetch("http://localhost/api/controller/Evento.php")
       .then((response) => {
         if (response.ok) {
-          return response.json(); // Suponiendo que el servidor devuelve un JSON con la lista de eventos
+          return response.json(); // El servidor devuelve un JSON con la lista de eventos
         }
         throw new Error("Error al obtener eventos");
       })
@@ -54,6 +54,11 @@ const AdminDashboard = () => {
           description: "No se pudieron cargar los eventos",
         });
       });
+  };
+
+  // Obtener la lista de eventos al montar el componente
+  useEffect(() => {
+    fetchEvents();
   }, []); // El array vacío asegura que esto solo se ejecute una vez al montar
 
   // Maneja el cambio de imágenes al seleccionar archivos.
@@ -68,36 +73,23 @@ const AdminDashboard = () => {
   };
 
   // Maneja el envío del formulario.
-  // Maneja el envío del formulario.
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    fetch("https://ganaturifa.com/api/controller/Evento.php", {
+    fetch("http://localhost/api/controller/Evento.php", {
       method: selectedEvent ? "PUT" : "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(eventData),
     })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
+      .then((response) =>{
+        if(response.status == 201){
+          fetchEvents();
         }
         return response.json();
       })
-      .then((data) => {
-        if (selectedEvent) {
-          // Actualiza el evento existente
-          setEvents((prevEvents) =>
-            prevEvents.map((event) =>
-              event.id === selectedEvent.id ? { ...event, ...eventData } : event
-            )
-          );
-        } else {
-          // Agrega el nuevo evento
-          setEvents((prevEvents) => [...prevEvents, eventData]);
-        } // Asegúrate de que `setEvents` sea la función para actualizar tu lista de eventos
-      })
+      .then(data=> console.log(data))
       .catch((error) => console.error(error));
 
     setShowEventForm(false);
@@ -152,12 +144,9 @@ const AdminDashboard = () => {
     setEvents(newEvents);
 
     // Aquí puedes hacer la solicitud `DELETE` al servidor para eliminar el evento
-    fetch(
-      `https://ganaturifa.com/api/controller/Evento.php?id=${eventToDelete.id}`,
-      {
-        method: "DELETE",
-      }
-    )
+    fetch(`http://localhost/api/controller/Evento.php?id=${eventToDelete.id}`, {
+      method: "DELETE",
+    })
       .then((response) => {
         if (response.ok) {
           toast({
@@ -249,7 +238,6 @@ const AdminDashboard = () => {
                 Delete Event
               </Button>
             </div>
-
             {showDeleteList && events.length > 0 && (
               <div className="mt-4 space-y-4">
                 <h3 className="text-lg font-semibold mb-2">
@@ -277,14 +265,14 @@ const AdminDashboard = () => {
                 ))}
               </div>
             )}
-
+            {/* // Renderizando la lista de eventos */}
             {events.length > 0 && !showDeleteList && (
               <div className="mt-4">
                 <h3 className="text-lg font-semibold mb-2">Current Events:</h3>
                 {events.map((event) => (
                   <div
                     key={event.id} // Usa el ID único del evento
-                    className="p-4 mb-2 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
+                    className="p-4 mb-4 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
                     onClick={() => {
                       setSelectedEvent(event); // Selecciona el evento actual
                       setEventData(event); // Carga los datos del evento en el formulario

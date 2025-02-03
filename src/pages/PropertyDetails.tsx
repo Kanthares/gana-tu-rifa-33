@@ -2,7 +2,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Timer from "@/components/Timer";
 import { Button } from "@/components/ui/button";
 import { Bed, Bath, Car, House, Home } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
   NavigationMenu,
