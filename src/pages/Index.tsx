@@ -16,7 +16,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("https://ganaturifa.com/api/controller/Evento.php")
+    fetch("http://localhost/api/controller/Evento.php")
       .then((response) => {
         if (response.ok) {
           return response.json(); // El servidor devuelve un JSON con la lista de eventos

@@ -20,12 +20,12 @@ const AdminLogin = () => {
     const contraseña = credentials.password;
 
     // This is a simple check - in a real app, you'd want to use proper authentication
-    fetch("https://ganaturifa.com/api/controller/Login.php", {
+    fetch("http://localhost/api/controller/Login.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ usuario, contraseña }),
+      body: JSON.stringify({ usuario, contraseña}),
     })
       .then((response) => {
         if (response.status == 201) {
