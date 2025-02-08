@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Home, Upload } from "lucide-react";
+import { Home, Upload, CheckSquare, XSquare, HelpCircle } from "lucide-react";
 import TicketModal from "@/components/TicketModal";
 
 const AdminDashboard = () => {
@@ -33,13 +33,18 @@ const AdminDashboard = () => {
     duration: 7,
     startNumber: "",
     quantity: "",
-
     images: [] as File[],
     endDate: new Date(
       new Date().getTime() + 7 * 24 * 60 * 60 * 1000
     ).toISOString(),
     ticketRange: "",
   });
+
+  // Estos son tickets de prueba, lo puedes quitar, era pa ve como se veian
+  const [tickets, setTickets] = useState([
+    { id: 1, number: '001', status: 'in-review' },
+    { id: 2, number: '002', status: 'in-review' },
+  ]);
 
   // Función para obtener eventos desde el servidor
   const fetchEvents = async () => {
@@ -94,7 +99,6 @@ const AdminDashboard = () => {
     formData.append("duration", eventData.duration.toString());
     formData.append("startNumber", eventData.startNumber);
     formData.append("quantity", eventData.quantity);
-    // formData.append("endDate", eventData.endDate);
 
     eventData.images.forEach((image, index) => {
       formData.append(`images[${index}]`, image);
@@ -190,6 +194,27 @@ const AdminDashboard = () => {
     });
   };
 
+  // Función para manejar el clic en "Ticket Status"
+  const handleTicketStatusClick = () => {
+    // Aquí puedes redirigir a una página de estado de tickets o abrir un modal
+    toast({
+      title: "Ticket Status",
+      description: "Mostrando el estado de los tickets...",
+    });
+    // Ejemplo: navigate('/ticket-status');
+  };
+
+  // Función para manejar el cambio de estado de los tickets
+  const handleStatusChange = (ticketId: number, newStatus: string) => {
+    setTickets(tickets.map(ticket => 
+      ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket
+    ));
+    toast({
+      title: "Status Updated",
+      description: `Ticket status updated to ${newStatus}`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
       {/* Barra de navegación */}
@@ -254,6 +279,13 @@ const AdminDashboard = () => {
               >
                 Delete Event
               </Button>
+              {/* Botón de Ticket Status */}
+              <Button
+                variant="outline"
+                onClick={handleTicketStatusClick}
+              >
+                Ticket Status
+              </Button>
             </div>
 
             {showDeleteList && events.length > 0 && (
@@ -305,6 +337,41 @@ const AdminDashboard = () => {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Sección de Status Tickets */}
+          <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6">
+            <h2 className="text-xl font-medium mb-4">Status Tickets</h2>
+            <div className="space-y-4">
+              {tickets.map(ticket => (
+                <div key={ticket.id} className="flex items-center gap-4 p-4 bg-white/10 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-yellow-500" />
+                    <span>Ticket #{ticket.number} - In Review</span>
+                  </div>
+                  <div className="ml-auto flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleStatusChange(ticket.id, 'approved')}
+                      className="hover:bg-green-500/20"
+                    >
+                      <CheckSquare className="h-5 w-5 text-green-500" />
+                      <span className="ml-2">Approved</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleStatusChange(ticket.id, 'denied')}
+                      className="hover:bg-red-500/20"
+                    >
+                      <XSquare className="h-5 w-5 text-red-500" />
+                      <span className="ml-2">Denied</span>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {showEventForm && (

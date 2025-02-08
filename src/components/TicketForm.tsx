@@ -81,6 +81,15 @@ const TicketForm = () => {
   };
 
   const handleTicketSelect = (ticketNumber: number) => {
+    if (selectedTickets.length >= ticketCount) {
+      toast({
+        title: "Limit Reached",
+        description: `You can only select up to ${ticketCount} tickets.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSelectedTickets(prev => {
       if (prev.includes(ticketNumber)) {
         return prev.filter(t => t !== ticketNumber);
@@ -144,6 +153,7 @@ const TicketForm = () => {
                   type="button"
                   variant="outline"
                   onClick={handleDecrement}
+                  disabled={ticketCount <= 1}
                   className="h-10 w-10 rounded-full p-0"
                 >
                   <Minus className="h-4 w-4" />
@@ -155,6 +165,7 @@ const TicketForm = () => {
                   type="button"
                   variant="outline"
                   onClick={handleIncrement}
+                  disabled={selectedTickets.length >= ticketCount}
                   className="h-10 w-10 rounded-full p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -197,6 +208,7 @@ const TicketForm = () => {
                             <button
                               key={ticket.number}
                               onClick={() => handleTicketSelect(ticket.number)}
+                              disabled={selectedTickets.length >= ticketCount && !selectedTickets.includes(ticket.number)}
                               className={`p-3 rounded-lg text-center transition-all ${
                                 selectedTickets.includes(ticket.number)
                                   ? 'bg-purple-600 text-white ring-2 ring-purple-400'
