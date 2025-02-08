@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, ArrowLeft, Home } from "lucide-react";
+import { Minus, Plus, ArrowLeft, Home, TicketIcon } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Form,
@@ -12,6 +12,15 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type FormData = {
   name: string;
@@ -20,13 +29,48 @@ type FormData = {
   phone: string;
 };
 
+interface Ticket {
+  number: number;
+  status: string;
+}
+
 const TICKET_PRICE_BS = 65;
 const TICKET_PRICE_USD = 1;
 
 const TicketForm = () => {
   const [ticketCount, setTicketCount] = useState(1);
+  const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [formEnabled, setFormEnabled] = useState(false);
+  const [selectedTicketsLabel, setSelectedTicketsLabel] = useState<string>('');
+  const [isOpen, setIsOpen] = useState(false);
+  const { toast } = useToast();
   const form = useForm<FormData>();
   const navigate = useNavigate();
+
+  // Obtener los tickets desde la API
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const response = await fetch("https://ganaturifa.com/api/controller/Tickets.php");
+        if (response.ok) {
+          const data = await response.json();
+          setTickets(data); // Asume que la API devuelve un array de tickets
+        } else {
+          throw new Error("Error fetching tickets");
+        }
+      } catch (error) {
+        console.error(error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch tickets",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchTickets();
+  }, []);
 
   const handleIncrement = () => {
     setTicketCount((prev) => prev + 1);
@@ -36,8 +80,30 @@ const TicketForm = () => {
     setTicketCount((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
+  const handleTicketSelect = (ticketNumber: number) => {
+    setSelectedTickets(prev => {
+      if (prev.includes(ticketNumber)) {
+        return prev.filter(t => t !== ticketNumber);
+      } else {
+        return [...prev, ticketNumber];
+      }
+    });
+  };
+
+  const handleTicketConfirm = () => {
+    if (selectedTickets.length > 0) {
+      setFormEnabled(true);
+      setSelectedTicketsLabel(`Selected tickets: ${selectedTickets.join(', ')}`);
+      setIsOpen(false);
+      toast({
+        title: "Tickets Selected",
+        description: `Selected tickets: ${selectedTickets.join(', ')}`,
+      });
+    }
+  };
+
   const onSubmit = (data: FormData) => {
-    console.log({ ...data, ticketCount });
+    console.log({ ...data, ticketCount, selectedTickets });
   };
 
   return (
@@ -106,11 +172,68 @@ const TicketForm = () => {
               </div>
             </div>
 
+            {/* Ticket Selection */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium mb-3">Select your tickets</h3>
+              <div className="space-y-4">
+                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                  <DialogTrigger asChild>
+                    <Button 
+                      variant="outline" 
+                      className="w-full bg-black/50 border-gray-700 hover:bg-black/70"
+                    >
+                      <TicketIcon className="mr-2 h-4 w-4" />
+                      Select Tickets
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="bg-black/90 border-gray-700">
+                    <DialogHeader>
+                      <DialogTitle>Select Your Tickets</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col h-[300px]">
+                      <ScrollArea className="flex-grow">
+                        <div className="grid grid-cols-5 gap-2 p-4">
+                          {tickets.map((ticket) => (
+                            <button
+                              key={ticket.number}
+                              onClick={() => handleTicketSelect(ticket.number)}
+                              className={`p-3 rounded-lg text-center transition-all ${
+                                selectedTickets.includes(ticket.number)
+                                  ? 'bg-purple-600 text-white ring-2 ring-purple-400'
+                                  : 'bg-black/50 hover:bg-black/70 text-gray-200'
+                              }`}
+                            >
+                              {ticket.number}
+                            </button>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                      <div className="p-4 border-t border-gray-700 mt-2">
+                        <Button
+                          onClick={handleTicketConfirm}
+                          disabled={selectedTickets.length === 0}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          Accept
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                {selectedTicketsLabel && (
+                  <div className="p-2 bg-purple-600/20 rounded-md text-sm">
+                    {selectedTicketsLabel}
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Contact Form */}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
+                className={`space-y-4 ${!formEnabled && 'opacity-50 pointer-events-none'}`}
               >
                 <FormField
                   control={form.control}
