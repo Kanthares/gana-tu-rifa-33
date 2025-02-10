@@ -13,13 +13,46 @@ import {
 const PropertyDetails = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedEvent = localStorage.getItem('selectedEvent');
-    if (storedEvent) {
-      setEvent(JSON.parse(storedEvent));
-    }
+    const fetchEvent = async () => {
+      try {
+        // Supongamos que el ID del evento está en la URL o en algún estado
+        const eventId = "123"; // Reemplaza esto con la lógica para obtener el ID
+        const response = await fetch(`/api/events/${eventId}`);
+        if (response.ok) {
+          const data = await response.json();
+          setEvent(data);
+        } else {
+          setError("Error fetching event");
+        }
+      } catch (error) {
+        setError("Error fetching event");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvent();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white flex items-center justify-center">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   if (!event) {
     return (
