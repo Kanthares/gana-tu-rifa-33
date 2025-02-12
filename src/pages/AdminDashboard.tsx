@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Home, Upload } from "lucide-react";
+import { Home, Upload, CheckSquare, XSquare, HelpCircle } from "lucide-react";
 import TicketModal from "@/components/TicketModal";
 
 const AdminDashboard = () => {
@@ -20,9 +20,12 @@ const AdminDashboard = () => {
   const [showEventForm, setShowEventForm] = useState(false);
   const [showDeleteList, setShowDeleteList] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  // Estos son tickets de prueba, lo puedes quitar, era pa ve como se veian
+  const [tickets, setTickets] = useState<any[]>([]);
 
   // Estado para almacenar los datos del evento
   const [eventData, setEventData] = useState({
+    id: "", // Agrega esta línea para almacenar el ID
     title: "",
     description: "",
     propertyName: "",
@@ -33,7 +36,6 @@ const AdminDashboard = () => {
     duration: 7,
     startNumber: "",
     quantity: "",
-
     images: [] as File[],
     endDate: new Date(
       new Date().getTime() + 7 * 24 * 60 * 60 * 1000
@@ -41,11 +43,13 @@ const AdminDashboard = () => {
     ticketRange: "",
   });
 
+  // { id: 1, number: "001", status: "in-review" },
+  //   { id: 2, number: "002", status: "in-review" },
   // Función para obtener eventos desde el servidor
   const fetchEvents = async () => {
     try {
       const response = await fetch(
-        "http://localhost/api/controller/Evento.php"
+        "https://ganaturifa.com/api/controller/Evento.php"
       );
       if (response.ok) {
         const data = await response.json();
@@ -62,10 +66,32 @@ const AdminDashboard = () => {
       });
     }
   };
+  //Obtenet los tickets en reservados
+  const fetchTickets = async () => {
+    try {
+      const response = await fetch(
+        "https://ganaturifa.com/api/controller/Tickets.php"
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setTickets(data); // Actualiza el estado de los ticket con los datos obtenidos del fetch
+      } else {
+        throw new Error("Error al obtener tickets");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "No se pudieron cargar los tickets",
+      });
+    }
+  };
 
   // Obtener la lista de eventos al montar el componente
   useEffect(() => {
     fetchEvents();
+    fetchTickets();
   }, []);
 
   // Maneja el cambio de imágenes al seleccionar archivos
@@ -83,55 +109,90 @@ const AdminDashboard = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("title", eventData.title);
-    formData.append("description", eventData.description);
-    formData.append("propertyName", eventData.propertyName);
-    formData.append("rooms", eventData.rooms);
-    formData.append("bathrooms", eventData.bathrooms);
-    formData.append("carStalls", eventData.carStalls);
-    formData.append("squareMeters", eventData.squareMeters);
-    formData.append("duration", eventData.duration.toString());
-    formData.append("startNumber", eventData.startNumber);
-    formData.append("quantity", eventData.quantity);
-    // formData.append("endDate", eventData.endDate);
+    //Dependiendo del id se envia un PUT Json o un POST formData
+    if (eventData.id) {
+      //PUT
+      try {
+        const response = await fetch(
+          "https://ganaturifa.com/api/controller/Evento.php",
+          {
+            method: "PUT",
+            body: JSON.stringify(eventData),
+          }
+        );
 
-    eventData.images.forEach((image, index) => {
-      formData.append(`images[${index}]`, image);
-    });
-
-    try {
-      const response = await fetch(
-        "http://localhost/api/controller/Evento.php",
-        {
-          method: selectedEvent ? "PUT" : "POST",
-          body: formData,
+        if (response.ok) {
+          fetchEvents();
+          toast({
+            title: "Success",
+            description: selectedEvent
+              ? "Event updated successfully"
+              : "Event created successfully",
+          });
+        } else {
+          throw new Error("Error al enviar los datos");
         }
-      );
-
-      if (response.ok) {
-        fetchEvents();
+      } catch (error) {
+        console.error(error);
         toast({
-          title: "Success",
-          description: selectedEvent
-            ? "Event updated successfully"
-            : "Event created successfully",
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo enviar el evento",
         });
-      } else {
-        throw new Error("Error al enviar los datos");
       }
-    } catch (error) {
-      console.error(error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "No se pudo enviar el evento",
-      });
+    } else {
+      //POST
+      //Se agregan los datos a la variable
+      const formData = new FormData();
+      formData.append("title", eventData.title);
+      formData.append("description", eventData.description);
+      formData.append("propertyName", eventData.propertyName);
+      formData.append("rooms", eventData.rooms);
+      formData.append("bathrooms", eventData.bathrooms);
+      formData.append("carStalls", eventData.carStalls);
+      formData.append("squareMeters", eventData.squareMeters);
+      formData.append("duration", eventData.duration.toString());
+      formData.append("startNumber", eventData.startNumber);
+      formData.append("quantity", eventData.quantity);
+
+      // eventData.images.forEach((image, index) => {
+      //   formData.append(`images[${index}]`, image);
+      // });
+
+      try {
+        const response = await fetch(
+          "https://ganaturifa.com/api/controller/Evento.php",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (response.ok) {
+          fetchEvents();
+          toast({
+            title: "Success",
+            description: selectedEvent
+              ? "Event updated successfully"
+              : "Event created successfully",
+          });
+        } else {
+          throw new Error("Error al enviar los datos");
+        }
+      } catch (error) {
+        console.error(error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "No se pudo enviar el evento",
+        });
+      }
     }
 
     setShowEventForm(false);
     setSelectedEvent(null);
     setEventData({
+      id: "", //  Almacenar el ID
       title: "",
       description: "",
       propertyName: "",
@@ -154,7 +215,7 @@ const AdminDashboard = () => {
   const handleDeleteEvent = async (eventToDelete: any) => {
     try {
       const response = await fetch(
-        `http://localhost/api/controller/Evento.php?id=${eventToDelete.id}`,
+        `https://ganaturifa.com/api/controller/Evento.php?id=${eventToDelete.id}`,
         {
           method: "DELETE",
         }
@@ -190,6 +251,55 @@ const AdminDashboard = () => {
     });
   };
 
+  // Función para manejar el clic en "Ticket Status"
+  const handleTicketStatusClick = () => {
+    // Aquí puedes redirigir a una página de estado de tickets o abrir un modal
+    toast({
+      title: "Ticket Status",
+      description: "Mostrando el estado de los tickets...",
+    });
+    // Ejemplo: navigate('/ticket-status');
+  };
+
+  // Función para manejar el cambio de estado de los tickets
+  const handleStatusChange = async (ticketId: number,eventId: number, newStatus: string) => {
+    try {
+      const response = await fetch(
+        `https://ganaturifa.com/api/controller/Tickets.php`,
+        {
+          method: "PUT", // O "PATCH" dependiendo de tu API
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id: ticketId, event: eventId, status: newStatus }), // Envía el nuevo estado
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data); 
+        fetchTickets();
+      } else {
+        throw new Error("Error al obtener tickets");
+      }
+
+
+      // Actualiza el estado local de los tickets
+      // fetchTickets();
+
+      toast({
+        title: "Estado Actualizado",
+        description: `El estado del ticket ha sido actualizado a ${newStatus}`,
+      });
+    } catch (error) {
+      console.error(error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    }
+  };
   return (
     <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white">
       {/* Barra de navegación */}
@@ -227,6 +337,7 @@ const AdminDashboard = () => {
                   setShowDeleteList(false);
                   setSelectedEvent(null);
                   setEventData({
+                    id: "", // Agrega esta línea para almacenar el ID
                     title: "",
                     description: "",
                     propertyName: "",
@@ -253,6 +364,10 @@ const AdminDashboard = () => {
                 variant="destructive"
               >
                 Delete Event
+              </Button>
+              {/* Botón de Ticket Status */}
+              <Button variant="outline" onClick={handleTicketStatusClick}>
+                Ticket Status
               </Button>
             </div>
 
@@ -305,6 +420,44 @@ const AdminDashboard = () => {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Sección de Status Tickets */}
+          <div className="bg-white/5 backdrop-blur-lg rounded-xl p-6 mb-6">
+            <h2 className="text-xl font-medium mb-4">Status Tickets</h2>
+            <div className="space-y-4">
+              {tickets.map((ticket) => (
+                <div
+                  key={ticket.id}
+                  className="flex items-center gap-4 p-4 bg-white/10 rounded-lg"
+                >
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-yellow-500" />
+                    <span>Ticket #{ticket.nroTicket} - Event #{ticket.evento_id} - In Review</span>
+                  </div>
+                  <div className="ml-auto flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleStatusChange(ticket.id, ticket.evento_id,"approved")}
+                      className="hover:bg-green-500/20"
+                    >
+                      <CheckSquare className="h-5 w-5 text-green-500" />
+                      <span className="ml-2">Approved</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleStatusChange(ticket.id, ticket.evento_id,"denied")}
+                      className="hover:bg-red-500/20"
+                    >
+                      <XSquare className="h-5 w-5 text-red-500" />
+                      <span className="ml-2">Denied</span>
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {showEventForm && (
@@ -506,7 +659,7 @@ const AdminDashboard = () => {
 
                     {eventData.images.length > 0 && (
                       <div className="grid grid-cols-2 gap-4">
-                        {eventData.images.map((image, index) => (
+                        {/* {eventData.images.map((image, index) => (
                           <div key={index} className="relative group">
                             <img
                               src={URL.createObjectURL(image)}
@@ -531,7 +684,7 @@ const AdminDashboard = () => {
                               Remove
                             </Button>
                           </div>
-                        ))}
+                        ))} */}
                       </div>
                     )}
                   </div>

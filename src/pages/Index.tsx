@@ -16,7 +16,7 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch("http://localhost/api/controller/Evento.php")
+    fetch("https://ganaturifa.com/api/controller/Evento.php")
       .then((response) => {
         if (response.ok) {
           return response.json(); // El servidor devuelve un JSON con la lista de eventos
@@ -129,26 +129,38 @@ const Index = () => {
         <div className="mb-16">
           <h2 className="text-3xl font-bold text-center mb-12">Eventos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                onClick={() => handleEventClick(event)}
-                className="cursor-pointer"
-              >
-                <Prize
-                  title={event.propertyName || "Property"}
-                  description={
-                    truncateDescription(event.description) ||
-                    "Click for more details"
-                  }
-                  imageUrl={
-                    event.images && event.images.length > 0
-                      ? URL.createObjectURL(event.images[0])
-                      : "/placeholder.svg"
-                  }
-                />
-              </div>
-            ))}
+            {events.map((event) => {
+              // Inicializa imageUrl con el SVG por defecto
+              let imageUrl = "/placeholder.svg";
+
+              // Verifica si event.images es un array y tiene elementos
+              if (
+                Array.isArray(event.images) &&
+                event.images.length > 0 &&
+                (event.images[0] instanceof File ||
+                  event.images[0] instanceof Blob)
+              ) {
+                // Si la imagen es válida, crea el objeto URL
+                imageUrl = URL.createObjectURL(event.images[0]);
+              }
+
+              return (
+                <div
+                  key={event.id}
+                  onClick={() => handleEventClick(event)}
+                  className="cursor-pointer"
+                >
+                  <Prize
+                    title={event.propertyName || "Property"}
+                    description={
+                      truncateDescription(event.description) ||
+                      "Click for more details"
+                    }
+                    imageUrl={imageUrl} // Usa imageUrl calculado
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 

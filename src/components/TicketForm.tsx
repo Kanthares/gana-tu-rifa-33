@@ -21,6 +21,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+// import { console } from "inspector";
 
 type FormData = {
   name: string;
@@ -30,7 +31,8 @@ type FormData = {
 };
 
 interface Ticket {
-  number: number;
+  id: string;
+  nroTicket: number;
   status: string;
 }
 
@@ -42,17 +44,22 @@ const TicketForm = () => {
   const [selectedTickets, setSelectedTickets] = useState<number[]>([]);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [formEnabled, setFormEnabled] = useState(false);
-  const [selectedTicketsLabel, setSelectedTicketsLabel] = useState<string>('');
+  const [selectedTicketsLabel, setSelectedTicketsLabel] = useState<string>("");
   const [isOpen, setIsOpen] = useState(false);
   const { toast } = useToast();
+  // Obtener el ID del evento desde localStorage
   const form = useForm<FormData>();
   const navigate = useNavigate();
 
-  // Obtener los tickets desde la API
-  useEffect(() => {
-    const fetchTickets = async () => {
+  // Función para obtener tickets
+  const storedEvent = localStorage.getItem("selectedEvent");
+  const fetchTickets = async () => {
+    if (storedEvent) {
+      const event = JSON.parse(storedEvent);
       try {
-        const response = await fetch("https://ganaturifa.com/api/controller/Tickets.php");
+        const response = await fetch(
+          `https://ganaturifa.com/api/controller/Tickets.php?eventId=${event.id}`
+        );
         if (response.ok) {
           const data = await response.json();
           setTickets(data); // Asume que la API devuelve un array de tickets
@@ -67,8 +74,13 @@ const TicketForm = () => {
           variant: "destructive",
         });
       }
-    };
+    } else {
+      console.error("No event ID found in localStorage");
+    }
+  };
 
+  // Obtener los tickets desde la API
+  useEffect(() => {
     fetchTickets();
   }, []);
 
@@ -81,9 +93,18 @@ const TicketForm = () => {
   };
 
   const handleTicketSelect = (ticketNumber: number) => {
-    setSelectedTickets(prev => {
+    if (selectedTickets.length >= ticketCount) {
+      toast({
+        title: "Limit Reached",
+        description: `You can only select up to ${ticketCount} tickets.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSelectedTickets((prev) => {
       if (prev.includes(ticketNumber)) {
-        return prev.filter(t => t !== ticketNumber);
+        return prev.filter((t) => t !== ticketNumber);
       } else {
         return [...prev, ticketNumber];
       }
@@ -93,17 +114,56 @@ const TicketForm = () => {
   const handleTicketConfirm = () => {
     if (selectedTickets.length > 0) {
       setFormEnabled(true);
-      setSelectedTicketsLabel(`Selected tickets: ${selectedTickets.join(', ')}`);
+      setSelectedTicketsLabel(
+        `Selected tickets: ${selectedTickets.join(", ")}`
+      );
       setIsOpen(false);
       toast({
         title: "Tickets Selected",
-        description: `Selected tickets: ${selectedTickets.join(', ')}`,
+        description: `Selected tickets: ${selectedTickets.join(", ")}`,
       });
     }
   };
 
-  const onSubmit = (data: FormData) => {
-    console.log({ ...data, ticketCount, selectedTickets });
+  const onSubmit = async (data: FormData) => {
+    const storedEvent = localStorage.getItem("selectedEvent");
+    const event = JSON.parse(storedEvent);
+    const eventId = event.id;
+    // Cantidades precios
+    const montoBs = (ticketCount * TICKET_PRICE_BS).toFixed(2);
+    const montoUsd = (ticketCount * TICKET_PRICE_USD).toFixed(2);
+
+    const datos = {
+      ...data, // Asegúrate de que 'data' esté definido
+      ticketCount,
+      selectedTickets,
+      eventId,
+      montoBs,
+      montoUsd
+    };
+
+    try {
+      const response = await fetch(
+        "https://ganaturifa.com/api/controller/Venta.php",
+        {
+          method: "POST",
+          body: JSON.stringify(datos),
+        }
+      );
+      if (response.ok) {
+        console.log(response.statusText);
+        fetchTickets();
+      } else {
+        throw new Error("Error fetching tickets");
+      }
+    } catch (error) {
+      console.error(error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch tickets",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -178,8 +238,8 @@ const TicketForm = () => {
               <div className="space-y-4">
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                   <DialogTrigger asChild>
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="w-full bg-black/50 border-gray-700 hover:bg-black/70"
                     >
                       <TicketIcon className="mr-2 h-4 w-4" />
@@ -195,15 +255,17 @@ const TicketForm = () => {
                         <div className="grid grid-cols-5 gap-2 p-4">
                           {tickets.map((ticket) => (
                             <button
-                              key={ticket.number}
-                              onClick={() => handleTicketSelect(ticket.number)}
+                              key={ticket.id}
+                              onClick={() =>
+                                handleTicketSelect(ticket.nroTicket)
+                              }
                               className={`p-3 rounded-lg text-center transition-all ${
-                                selectedTickets.includes(ticket.number)
-                                  ? 'bg-purple-600 text-white ring-2 ring-purple-400'
-                                  : 'bg-black/50 hover:bg-black/70 text-gray-200'
+                                selectedTickets.includes(ticket.nroTicket)
+                                  ? "bg-purple-600 text-white ring-2 ring-purple-400"
+                                  : "bg-black/50 hover:bg-black/70 text-gray-200"
                               }`}
                             >
-                              {ticket.number}
+                              {ticket.nroTicket}
                             </button>
                           ))}
                         </div>
@@ -233,7 +295,9 @@ const TicketForm = () => {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className={`space-y-4 ${!formEnabled && 'opacity-50 pointer-events-none'}`}
+                className={`space-y-4 ${
+                  !formEnabled && "opacity-50 pointer-events-none"
+                }`}
               >
                 <FormField
                   control={form.control}
