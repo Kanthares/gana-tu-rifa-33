@@ -102,7 +102,9 @@ const TicketForm = () => {
       return;
     }
 
+
     setSelectedTickets((prev) => {
+
       if (prev.includes(ticketNumber)) {
         return prev.filter((t) => t !== ticketNumber);
       } else {
@@ -204,6 +206,7 @@ const TicketForm = () => {
                   type="button"
                   variant="outline"
                   onClick={handleDecrement}
+                  disabled={ticketCount <= 1}
                   className="h-10 w-10 rounded-full p-0"
                 >
                   <Minus className="h-4 w-4" />
@@ -215,6 +218,7 @@ const TicketForm = () => {
                   type="button"
                   variant="outline"
                   onClick={handleIncrement}
+                  disabled={selectedTickets.length >= ticketCount}
                   className="h-10 w-10 rounded-full p-0"
                 >
                   <Plus className="h-4 w-4" />
@@ -255,10 +259,12 @@ const TicketForm = () => {
                         <div className="grid grid-cols-5 gap-2 p-4">
                           {tickets.map((ticket) => (
                             <button
+
                               key={ticket.id}
                               onClick={() =>
                                 handleTicketSelect(ticket.nroTicket)
                               }
+
                               className={`p-3 rounded-lg text-center transition-all ${
                                 selectedTickets.includes(ticket.nroTicket)
                                   ? "bg-purple-600 text-white ring-2 ring-purple-400"

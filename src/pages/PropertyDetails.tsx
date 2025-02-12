@@ -19,6 +19,8 @@ import {
 const PropertyDetails = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const storedEvent = localStorage.getItem("selectedEvent");
@@ -26,6 +28,22 @@ const PropertyDetails = () => {
       setEvent(JSON.parse(storedEvent));
     }
   }, []);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white flex items-center justify-center">
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-secondary to-black text-white flex items-center justify-center">
+        <p>{error}</p>
+      </div>
+    );
+  }
 
   if (!event) {
     return (

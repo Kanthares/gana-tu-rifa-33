@@ -45,6 +45,7 @@ const AdminDashboard = () => {
 
   // { id: 1, number: "001", status: "in-review" },
   //   { id: 2, number: "002", status: "in-review" },
+
   // Función para obtener eventos desde el servidor
   const fetchEvents = async () => {
     try {
@@ -262,6 +263,7 @@ const AdminDashboard = () => {
   };
 
   // Función para manejar el cambio de estado de los tickets
+
   const handleStatusChange = async (ticketId: number,eventId: number, newStatus: string) => {
     try {
       const response = await fetch(
@@ -439,7 +441,9 @@ const AdminDashboard = () => {
                     <Button
                       variant="ghost"
                       size="sm"
+
                       onClick={() => handleStatusChange(ticket.id, ticket.evento_id,"approved")}
+
                       className="hover:bg-green-500/20"
                     >
                       <CheckSquare className="h-5 w-5 text-green-500" />
